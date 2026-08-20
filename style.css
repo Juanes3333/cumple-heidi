@@ -363,7 +363,7 @@ html { scrollbar-color: var(--gold-dim) var(--black-deep); scrollbar-width: thin
 .date-new {
   margin-top: clamp(0.9rem, 3vw, 1.15rem);
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.7rem;
 }
 
