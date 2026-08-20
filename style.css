@@ -36,16 +36,25 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Nothing on this page scrolls — it's one screen at a time, swapped by JS.
+   Locking scroll (and disabling the browser's own touch-driven gestures:
+   pull-to-refresh, rubber-band bounce, pinch-zoom) stops the page itself
+   from fighting the cord drag for the same touch on mobile. */
+html, body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
 body {
-  min-height: 100%;
-  min-height: 100dvh;
+  height: 100%;
+  height: 100dvh;
   margin: 0;
   background: var(--black);
   color: var(--cream);
   font-family: var(--font-body);
   font-weight: 400;
   line-height: 1.5;
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
