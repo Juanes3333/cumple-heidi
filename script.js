@@ -458,6 +458,12 @@
   function goToReward() {
     const invite = document.getElementById("screen-invite");
     const reward = document.getElementById("screen-reward");
+    const noBtn = document.getElementById("btnNo");
+
+    // If "No" was ever chased around, dodge() reparented it to <body> as
+    // position:fixed — hiding #screen-invite alone would leave it floating
+    // over every screen after this one. Fade it out explicitly either way.
+    gsap.to(noBtn, { opacity: 0, duration: 0.3, onComplete: () => { noBtn.style.display = "none"; } });
 
     gsap.to(invite, {
       opacity: 0,

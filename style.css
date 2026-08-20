@@ -594,8 +594,9 @@ html { scrollbar-color: var(--gold-dim) var(--black-deep); scrollbar-width: thin
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 9% 3%;
+  justify-content: center;
+  gap: clamp(0.6rem, 3vw, 0.9rem);
+  padding: 6% 3%;
 }
 
 .ticket-stars {
