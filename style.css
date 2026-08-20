@@ -1,0 +1,668 @@
+/* ==========================================================================
+   Heidi — Es tu noche
+   Camerino de estrella: dressing-room mirror, vanity bulbs, velvet & gold.
+   ========================================================================== */
+
+:root {
+  --black: #0a0908;
+  --black-deep: #050404;
+  --charcoal: #171314;
+  --velvet: #2b0d12;
+  --red: #7d1526;
+  --red-bright: #a81f31;
+  --red-glow: #c8324a;
+  --gold: #d4af37;
+  --gold-light: #f2d98a;
+  --gold-dim: #8a6e2b;
+  --cream: #f5ece0;
+  --cream-dim: #d8c9b6;
+
+  --shadow-soft: 0 18px 40px -12px rgba(0, 0, 0, 0.65);
+  --shadow-tight: 0 6px 16px -6px rgba(0, 0, 0, 0.55);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --font-display: "Bebas Neue", "Arial Narrow", sans-serif;
+  --font-glam: "Abril Fatface", Georgia, serif;
+  --font-body: "Poppins", "Segoe UI", sans-serif;
+}
+
+/* ---------------------------------- reset -------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100%;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--black);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, p, ul { margin: 0; }
+ul { padding: 0; list-style: none; }
+button { font: inherit; color: inherit; }
+svg { display: block; }
+abbr { text-decoration: none; }
+
+::selection {
+  background: var(--red-bright);
+  color: var(--cream);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* thin gold scrollbar, themed rather than left as browser default */
+html { scrollbar-color: var(--gold-dim) var(--black-deep); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--black-deep); }
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dim);
+  border-radius: 6px;
+  border: 2px solid var(--black-deep);
+}
+
+/* ------------------------------- fixed stage ------------------------------ */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 8%, rgba(125, 21, 38, 0.28), transparent 60%),
+    radial-gradient(90% 70% at 50% 100%, rgba(43, 13, 18, 0.55), transparent 65%),
+    var(--black);
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+}
+
+.star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  box-shadow: 0 0 6px 1px rgba(242, 217, 138, 0.55);
+  opacity: 0.35;
+}
+
+.star--cross::before,
+.star--cross::after {
+  content: "";
+  position: absolute;
+  background: inherit;
+  box-shadow: inherit;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 50% 45%, transparent 45%, rgba(0, 0, 0, 0.75) 100%);
+}
+
+/* --------------------------------- layout --------------------------------- */
+
+#app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 6vw, 3rem) clamp(1.25rem, 6vw, 2.5rem);
+  position: relative;
+}
+
+.screen--hidden {
+  display: none;
+}
+
+/* =========================================================================
+   Screen 1 — Teaser: the mirror + pull cord
+   ========================================================================= */
+
+.curtain-edge {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  /* Closed by default (each half covers past center) so there is no flash
+     of the resting thin strip before script.js opens it on load — the
+     curtain must already be shut on first paint. */
+  width: 51vw;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.35) 0 6%,
+      var(--velvet) 6% 13%,
+      var(--red) 13% 19%
+    );
+  filter: drop-shadow(0 0 18px rgba(0, 0, 0, 0.6));
+}
+.curtain-edge--left { left: 0; }
+.curtain-edge--right { right: 0; transform: scaleX(-1); }
+
+.mirror-wrap {
+  position: relative;
+  width: min(78vw, 340px);
+  aspect-ratio: 3 / 4;
+}
+
+.mirror {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.bulb-ring {
+  position: absolute;
+  inset: 0;
+}
+
+.bulb {
+  position: absolute;
+  width: clamp(9px, 2.6vw, 13px);
+  height: clamp(9px, 2.6vw, 13px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #4a3a1a, #241a0c 70%);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(212, 175, 55, 0.25);
+  transform: translate(-50%, -50%);
+}
+
+.bulb.is-lit {
+  background: radial-gradient(circle at 35% 30%, #fff6d8, var(--gold-light) 55%, var(--gold) 100%);
+  box-shadow:
+    0 0 10px 3px rgba(242, 217, 138, 0.85),
+    0 0 22px 8px rgba(212, 175, 55, 0.45);
+}
+
+.mirror-glass {
+  position: absolute;
+  inset: clamp(16px, 5vw, 26px);
+  border-radius: 50% / 42%;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015) 40%, rgba(0, 0, 0, 0.25) 100%),
+    radial-gradient(120% 100% at 30% 15%, rgba(255, 255, 255, 0.08), transparent 55%),
+    linear-gradient(180deg, #1c1618, #0c0909 75%);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.65),
+    var(--shadow-soft);
+  backdrop-filter: blur(1px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12%;
+  text-align: center;
+}
+
+.mirror-msg {
+  font-family: var(--font-glam);
+  font-size: clamp(1.2rem, 5.6vw, 1.65rem);
+  line-height: 1.3;
+  color: var(--gold-light);
+  text-shadow: 0 0 22px rgba(242, 217, 138, 0.55);
+}
+
+.cord-wrap {
+  position: relative;
+  margin-top: clamp(1.25rem, 4vh, 2rem);
+  width: 3px;
+  height: 72px;
+  transition: opacity 0.3s ease;
+}
+
+/* Length and angle are driven by script.js (the cord can be pulled toward
+   any point around the anchor, not just straight down); this only sets the
+   material and the pivot it rotates from. */
+.cord-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  background: linear-gradient(180deg, var(--gold-dim), var(--gold));
+  border-radius: 2px;
+  transform-origin: top center;
+}
+
+.cord-pull {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 34px;
+  height: 34px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.cord-pull:active { cursor: grabbing; }
+
+.cord-tassel {
+  position: absolute;
+  inset: 0;
+  border-radius: 40% 40% 50% 50% / 34% 34% 60% 60%;
+  background: radial-gradient(circle at 35% 25%, var(--gold-light), var(--gold) 55%, var(--gold-dim) 100%);
+  box-shadow: var(--shadow-tight), 0 0 14px rgba(212, 175, 55, 0.35);
+}
+
+/* =========================================================================
+   Screen 2 — Invitation card
+   ========================================================================= */
+
+.card {
+  position: relative;
+  width: min(90vw, 400px);
+  padding: clamp(1.75rem, 6vw, 2.5rem) clamp(1.5rem, 6vw, 2.25rem) clamp(2rem, 6vw, 2.5rem);
+  border-radius: 18px;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.04), transparent 40%),
+    linear-gradient(180deg, var(--velvet), var(--black-deep) 85%);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: var(--shadow-soft), inset 0 0 60px rgba(0, 0, 0, 0.4);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(212, 175, 55, 0.16);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 13vw, 3.4rem);
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+  color: var(--gold-light);
+  text-shadow: 0 2px 24px rgba(212, 175, 55, 0.25);
+}
+
+.card-title-sub {
+  display: block;
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 3.6vw, 1.05rem);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--cream-dim);
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+.date-block {
+  margin-top: clamp(1.5rem, 5vw, 2rem);
+  padding-top: clamp(1.25rem, 4vw, 1.5rem);
+  border-top: 1px solid rgba(212, 175, 55, 0.18);
+}
+
+.date-old {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.date-old-strike {
+  position: relative;
+  font-size: clamp(1rem, 4vw, 1.15rem);
+  color: var(--cream-dim);
+  opacity: 0.65;
+}
+
+.stamp {
+  display: inline-block;
+  padding: 0.15em 0.55em;
+  border: 2px solid var(--red-glow);
+  border-radius: 5px;
+  color: var(--red-glow);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  transform: rotate(-8deg) scale(0);
+  opacity: 0;
+}
+
+.date-reason {
+  margin-top: 0.6rem;
+  font-size: 0.88rem;
+  color: var(--cream-dim);
+  font-style: italic;
+  max-width: 34ch;
+}
+
+.date-new {
+  margin-top: clamp(0.9rem, 3vw, 1.15rem);
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+}
+
+.date-new-num {
+  font-family: var(--font-glam);
+  font-size: clamp(3.4rem, 18vw, 4.6rem);
+  line-height: 0.8;
+  color: var(--gold-light);
+  text-shadow: 0 4px 30px rgba(212, 175, 55, 0.3);
+}
+
+.date-new-rest {
+  font-size: clamp(0.95rem, 3.6vw, 1.05rem);
+  font-weight: 600;
+  color: var(--cream);
+  line-height: 1.35;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.details {
+  margin-top: clamp(1.5rem, 5vw, 1.75rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.details li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 0.94rem;
+  color: var(--cream);
+}
+
+.details-icon {
+  width: 19px;
+  height: 19px;
+  flex: none;
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.card-question {
+  margin-top: clamp(1.6rem, 5vw, 2rem);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.02rem;
+  color: var(--cream);
+}
+
+.btn-row {
+  position: relative;
+  margin-top: 1.1rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  min-height: 52px;
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  border-radius: 999px;
+  padding: 0.85em 1.5em;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+}
+
+.btn:active { transform: scale(0.96); }
+
+.btn-yes {
+  background: linear-gradient(155deg, var(--gold-light), var(--gold) 60%, var(--gold-dim));
+  color: #241a0c;
+  box-shadow: var(--shadow-tight), 0 0 0 1px rgba(212, 175, 55, 0.4);
+}
+
+.btn-yes:hover { box-shadow: var(--shadow-soft), 0 0 22px rgba(212, 175, 55, 0.4); }
+
+.btn-no {
+  position: relative;
+  background: transparent;
+  color: var(--cream-dim);
+  box-shadow: inset 0 0 0 1.5px rgba(216, 201, 182, 0.35);
+}
+
+.btn-no.is-dodging {
+  position: fixed;
+  z-index: 60;
+  /* Once it's loose on the screen it can land over the mirror, the card, or
+     the stars — keep it legible against any of them rather than relying on
+     whatever happens to be underneath. */
+  background: rgba(10, 9, 8, 0.72);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-soft), inset 0 0 0 1.5px rgba(216, 201, 182, 0.45);
+}
+
+/* =========================================================================
+   Screen 3 — Reward
+   ========================================================================= */
+
+#screen-reward {
+  overflow: hidden;
+}
+
+.reward {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 420px;
+}
+
+.reward-spotlight {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140vmax;
+  height: 140vmax;
+  transform: translate(-50%, -50%) scale(0);
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.03) 32%, transparent 60%);
+  z-index: -1;
+}
+
+.reward-title {
+  font-family: var(--font-glam);
+  font-size: clamp(2.3rem, 11vw, 3.2rem);
+  line-height: 1.1;
+  color: var(--gold-light);
+  text-shadow: 0 4px 34px rgba(212, 175, 55, 0.4);
+  opacity: 0;
+}
+
+.reward-title-sub {
+  display: block;
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 3.6vw, 1.05rem);
+  font-weight: 500;
+  color: var(--cream-dim);
+  margin-top: 0.6rem;
+  line-height: 1.4;
+}
+
+.reward-note {
+  margin-top: clamp(1.25rem, 4vw, 1.6rem);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--cream-dim);
+  opacity: 0;
+}
+
+/* ---------------------------------------------------------------------
+   Retro cinema ticket — a printed prop, so it earns its own paper-and-ink
+   palette rather than the stage's black/red/gold; the gold accent still
+   ties it back (stars, dashed stub line, paper's warm cast).
+   --------------------------------------------------------------------- */
+
+.ticket {
+  position: relative;
+  width: min(92vw, 380px);
+  aspect-ratio: 400 / 230;
+  margin: clamp(1.5rem, 5vw, 2rem) auto 0;
+  opacity: 0;
+  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.55));
+}
+
+.ticket-shape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ticket-shape path {
+  fill: url(#ticketPaper);
+  stroke: var(--red-glow);
+  stroke-width: 3;
+}
+
+.ticket-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  color: #2a1c10;
+}
+
+.ticket-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.4rem, 2vw, 0.6rem);
+  padding: 6% 4%;
+  text-align: center;
+}
+
+.ticket-band {
+  background: var(--red-glow);
+  color: #fbeecb;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: clamp(0.6rem, 2.6vw, 0.72rem);
+  font-weight: 700;
+  padding: 0.3em 0.9em;
+  border-radius: 3px;
+}
+
+.ticket-name {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 10vw, 2.7rem);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: #2a1c10;
+}
+
+.ticket-stub {
+  width: 27%;
+  flex: none;
+  border-left: 2px dashed rgba(42, 28, 16, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9% 3%;
+}
+
+.ticket-stars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.ticket-stars svg {
+  width: 10px;
+  height: 10px;
+  fill: var(--red-glow);
+}
+
+.ticket-stub-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: clamp(0.55rem, 2.2vw, 0.66rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #2a1c10;
+  white-space: nowrap;
+}
+
+.confetti-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -5%;
+  will-change: transform;
+}
+
+/* =========================================================================
+   Small phones — tighten rhythm
+   ========================================================================= */
+
+@media (max-width: 360px) {
+  .mirror-wrap { width: 82vw; }
+  .card { padding: 1.5rem 1.25rem 1.85rem; }
+}
+
+/* =========================================================================
+   Reduced motion
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================================
+   Desktop — secondary, keep the composition from over-widening
+   ========================================================================= */
+
+@media (min-width: 720px) {
+  .mirror-wrap { width: min(46vw, 380px); }
+  .card { width: 440px; }
+  .reward-title { font-size: clamp(3rem, 6vw, 3.8rem); }
+}
