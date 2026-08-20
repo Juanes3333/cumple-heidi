@@ -36,14 +36,14 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-/* Nothing on this page scrolls — it's one screen at a time, swapped by JS.
-   Locking scroll (and disabling the browser's own touch-driven gestures:
-   pull-to-refresh, rubber-band bounce, pinch-zoom) stops the page itself
-   from fighting the cord drag for the same touch on mobile. */
+/* The document itself never scrolls or bounces — each .screen is its own
+   fixed-height, independently scrollable box (see below), so there is
+   nothing for the page-level gesture to fight the cord drag over. Screens
+   with more content than fits (the reward screen, with the photo + ticket)
+   still scroll fine internally. */
 html, body {
   overflow: hidden;
   overscroll-behavior: none;
-  touch-action: none;
 }
 
 body {
@@ -137,14 +137,24 @@ html { scrollbar-color: var(--gold-dim) var(--black-deep); scrollbar-width: thin
 }
 
 .screen {
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: clamp(1.5rem, 6vw, 3rem) clamp(1.25rem, 6vw, 2.5rem);
   position: relative;
+}
+
+/* The teaser is the one screen the cord's own drag gesture must never
+   compete with — its content is short and never needs to scroll, so touch
+   scrolling is switched off for it specifically rather than site-wide. */
+#screen-teaser {
+  overflow: hidden;
+  touch-action: none;
 }
 
 .screen--hidden {
@@ -480,10 +490,6 @@ html { scrollbar-color: var(--gold-dim) var(--black-deep); scrollbar-width: thin
    Screen 3 — Reward
    ========================================================================= */
 
-#screen-reward {
-  overflow: hidden;
-}
-
 .reward {
   position: relative;
   z-index: 2;
@@ -492,7 +498,10 @@ html { scrollbar-color: var(--gold-dim) var(--black-deep); scrollbar-width: thin
 }
 
 .reward-spotlight {
-  position: absolute;
+  /* Fixed to the viewport rather than absolute within the (now internally
+     scrollable) reward screen — a huge glow like this must never inflate
+     that screen's scrollable content box. */
+  position: fixed;
   left: 50%;
   top: 50%;
   width: 140vmax;
@@ -500,6 +509,7 @@ html { scrollbar-color: var(--gold-dim) var(--black-deep); scrollbar-width: thin
   transform: translate(-50%, -50%) scale(0);
   background: radial-gradient(circle, rgba(212, 175, 55, 0.16), rgba(212, 175, 55, 0.03) 32%, transparent 60%);
   z-index: -1;
+  pointer-events: none;
 }
 
 .reward-title {
@@ -530,106 +540,22 @@ html { scrollbar-color: var(--gold-dim) var(--black-deep); scrollbar-width: thin
 }
 
 /* ---------------------------------------------------------------------
-   Retro cinema ticket — a printed prop, so it earns its own paper-and-ink
-   palette rather than the stage's black/red/gold; the gold accent still
-   ties it back (stars, dashed stub line, paper's warm cast).
+   Retro cinema ticket — a fully custom-designed artifact (the user's own
+   PNG, photo included), so it's dropped in as-is rather than rebuilt with
+   CSS: it already carries its own paper-and-ink world.
    --------------------------------------------------------------------- */
 
 .ticket {
-  position: relative;
-  width: min(92vw, 380px);
-  aspect-ratio: 400 / 230;
+  width: min(94vw, 460px);
   margin: clamp(1.5rem, 5vw, 2rem) auto 0;
   opacity: 0;
   filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.55));
 }
 
-.ticket-shape {
-  position: absolute;
-  inset: 0;
+.ticket img {
+  display: block;
   width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.ticket-shape path {
-  fill: url(#ticketPaper);
-  stroke: var(--red-glow);
-  stroke-width: 3;
-}
-
-.ticket-content {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: stretch;
-  color: #2a1c10;
-}
-
-.ticket-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(0.4rem, 2vw, 0.6rem);
-  padding: 6% 4%;
-  text-align: center;
-}
-
-.ticket-band {
-  background: var(--red-glow);
-  color: #fbeecb;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: clamp(0.6rem, 2.6vw, 0.72rem);
-  font-weight: 700;
-  padding: 0.3em 0.9em;
-  border-radius: 3px;
-}
-
-.ticket-name {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 10vw, 2.7rem);
-  letter-spacing: 0.03em;
-  line-height: 1;
-  color: #2a1c10;
-}
-
-.ticket-stub {
-  width: 27%;
-  flex: none;
-  border-left: 2px dashed rgba(42, 28, 16, 0.35);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(0.6rem, 3vw, 0.9rem);
-  padding: 6% 3%;
-}
-
-.ticket-stars {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3em;
-}
-
-.ticket-stars svg {
-  width: 10px;
-  height: 10px;
-  fill: var(--red-glow);
-}
-
-.ticket-stub-text {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  font-size: clamp(0.55rem, 2.2vw, 0.66rem);
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #2a1c10;
-  white-space: nowrap;
+  height: auto;
 }
 
 .confetti-layer {
