@@ -118,9 +118,9 @@
     // That "still moving, just heavier" feel is what reads as elastic rather
     // than clamped.
     const shortSide = Math.min(window.innerWidth, window.innerHeight);
-    const BASE_RADIUS = Math.min(shortSide * 0.24, 130);
-    const ELASTIC_SPAN = Math.min(shortSide * 0.22, 120);
-    const THRESHOLD = BASE_RADIUS + ELASTIC_SPAN * 0.62;
+    const BASE_RADIUS = Math.min(shortSide * 0.16, 90);
+    const ELASTIC_SPAN = Math.min(shortSide * 0.16, 90);
+    const THRESHOLD = BASE_RADIUS + ELASTIC_SPAN * 0.45;
 
     const HOLD_HINT_MS = 2000;
     const DEFAULT_HINT = "Tira del cordón dorado";
